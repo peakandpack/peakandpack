@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peak and Pack | Backcountry ski guiding and mountain education in Tromsø</title>
+<meta name="description" content="Small-group avalanche courses, ski touring clinics and expeditions in Tromsø and the Lyngen Alps. Guide services and expedition design worldwide.">
+<meta property="og:title" content="Peak and Pack">
+<meta property="og:description" content="Small-group avalanche courses, ski touring clinics and expeditions in Tromsø and Lyngen.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="#courses" aria-label="Peak and Pack, home"><span class="mark" role="img" aria-label=""></span><b>Peak &amp; Pack</b></a>
+  <nav id="nav" aria-label="Sections">
+    <a href="#courses" data-v="courses">Courses</a>
+    <a href="#schedule" data-v="schedule">Schedule</a>
+    <a href="#book" data-v="book">Book</a>
+    <a href="#photos" data-v="photos">Photos</a>
+    <a href="#journal" data-v="journal">Journal</a>
+  </nav>
+</header>
+
+<main>
+<section class="view" id="v-courses" hidden>
+  <div class="hero">
+    <div>
+      <div class="kick">Tromsø · Lyngen · 69°N</div>
+      <h1>Courses, clinics and expeditions</h1>
+      <p>Backcountry ski guiding and mountain education in small groups. Every avalanche course is built to the Norsk Fjellsportforum national standard.</p>
+      <ul><li>Max six per instructor on avalanche courses</li><li>Four or five per guide on technical clinics</li><li>Guide services and expedition design worldwide</li></ul>
+    </div>
+    <div class="logo" role="img" aria-label="Peak and Pack logo: line drawing of mountains"></div>
+  </div>
+  <div id="cList"></div>
+  <div class="note"><b>Group size is the product</b>If a date shows as full, email us and we will open the next one rather than squeeze you into this one.</div>
+</section>
+
+<section class="view" id="v-schedule" hidden>
+  <h2 class="page">Schedule</h2>
+  <p class="lead">Upcoming dates, earliest first. Dates that have passed are removed automatically.</p>
+  <div class="chips" id="sFilter"></div>
+  <div id="sList"></div>
+</section>
+
+<section class="view" id="v-book" hidden>
+  <h2 class="page">Book a place</h2>
+  <p class="lead">Send a request for a date. Places are released first come, first served, and we confirm by email. If a date is full you can join the waiting list.</p>
+  <div class="layout2">
+    <form class="book" id="bForm">
+      <label for="bSlot">Course and date<select id="bSlot" required></select></label>
+      <div class="fields">
+        <label for="bName">Your name<input id="bName" required autocomplete="name"></label>
+        <label for="bContact">Email or phone<input id="bContact" required autocomplete="email"></label>
+        <label for="bGuests">People<input id="bGuests" type="number" min="1" max="10" value="1" required></label>
+      </div>
+      <label for="bNote">Experience and notes<textarea id="bNote" placeholder="Previous courses, touring experience, anything we should know"></textarea></label>
+      <div class="actions"><button type="submit" id="bSubmit">Send request</button></div>
+      <div id="bMsg" class="msg" role="status"></div>
+    </form>
+    <div>
+      <h3>Prefer email?</h3>
+      <p class="lead" style="margin-top:6px">Write to <a id="mailLink" href="#"></a> and tell us which course and date you have in mind.</p>
+      <h3 style="margin-top:22px">Next dates</h3>
+      <div id="bUpcoming"></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-photos" hidden>
+  <h2 class="page">Photos</h2>
+  <p class="lead">From the field in Lyngen and around Tromsø.</p>
+  <div class="photos" id="phList"></div>
+</section>
+
+<section class="view" id="v-journal" hidden>
+  <h2 class="page">Journal</h2>
+  <p class="lead">Notes on how and why we teach the way we do.</p>
+  <div id="aList"></div>
+</section>
+</main>
+
+<footer>
+  <span>Peak &amp; Pack · Tromsø · Lyngen · 69°N</span>
+  <span><a id="footMail" href="#"></a></span>
+  <span>Guide services &amp; expedition design worldwide</span>
+</footer>
+</div>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+PEAK AND PACK WEBSITE: SETUP GUIDE (for beginners, no experience needed)
+
+What you have: a folder of files that make up your website. GitHub Pages is a free service
+that shows those files to the world as a website. You upload the files once, switch one
+setting on, and your site is live. Total time: about 15 minutes.
+
+WORDS YOU WILL SEE
+- Repository ("repo"): a folder on GitHub that holds your website's files.
+- Commit: GitHub's word for "save". Every time you change something you press "Commit changes".
+
+------------------------------------------------------------
+STEP 1. Unzip the files on your computer
+------------------------------------------------------------
+Double-click the zip you downloaded. You get a folder called "peakandpack-site" containing:
+  index.html, style.css, app.js, content.js, favicon.png, SETUP-GUIDE.txt, and two folders: assets and photos.
+Test it first: double-click index.html. Your site opens in your browser.
+
+------------------------------------------------------------
+STEP 2. Create a free GitHub account
+------------------------------------------------------------
+1. Go to https://github.com and click "Sign up".
+2. Use peakandpack@gmail.com, choose a password and a username. The username becomes part of
+   your site's web address, so pick something short, e.g. "peakandpack".
+3. Confirm your email address when GitHub sends you a code.
+4. Choose the FREE plan.
+
+------------------------------------------------------------
+STEP 3. Create a repository
+------------------------------------------------------------
+1. Click the "+" at the top right, then "New repository".
+2. Repository name: peakandpack-site
+3. Choose "Public". (Free GitHub Pages needs a public repository. This is fine: your website
+   is public anyway. Do not put anything private in these files.)
+4. Tick "Add a README file".
+5. Click "Create repository".
+
+------------------------------------------------------------
+STEP 4. Upload the website files
+------------------------------------------------------------
+1. In your new repository, click "Add file" then "Upload files".
+2. Open the unzipped "peakandpack-site" folder on your computer, select EVERYTHING INSIDE it
+   (all the files and the two folders "assets" and "photos"), and drag it into the browser window.
+   Do not upload the zip itself, and do not drag in the outer folder: drag its contents.
+3. Wait until all files show as uploaded.
+4. Scroll down and click "Commit changes".
+5. Check the repository now lists index.html, content.js, assets, photos and so on.
+
+------------------------------------------------------------
+STEP 5. Switch the website on
+------------------------------------------------------------
+1. In your repository click "Settings" (top menu), then "Pages" (left menu).
+2. Under "Build and deployment", set Source to "Deploy from a branch".
+3. Under "Branch" choose "main" and the folder "/ (root)", then click Save.
+4. Wait 1 to 3 minutes and refresh the Pages settings page. A box appears saying
+   "Your site is live at ..."
+   The address will be: https://YOUR-USERNAME.github.io/peakandpack-site/
+5. Open it. That is your website. Share that link.
+
+------------------------------------------------------------
+STEP 6. Change courses, dates, articles
+------------------------------------------------------------
+Almost everything you will ever change lives in ONE file: content.js.
+1. In your repository, click content.js, then the pencil icon (Edit this file).
+2. Change the text. Keep the quote marks and the commas at the end of lines.
+   - New date: copy an existing line in the "dates" list and change it. Dates are YYYY-MM-DD.
+   - Date is full: change full:false to full:true on its line. The site then shows "Full · waiting list".
+   - Dates that have passed disappear on their own.
+   - New article: copy the block in "articles" and edit it. Use \n\n for a blank line between paragraphs.
+3. Click "Commit changes" (green button), then "Commit changes" again.
+4. After about a minute, refresh your website. Use Ctrl+F5 (Windows) or Cmd+Shift+R (Mac) if you
+   still see the old version.
+If you break something (a missing comma or quote mark makes the page go empty), open the file
+again, click "History" at the top right, and restore the previous version. Nothing is ever lost.
+
+------------------------------------------------------------
+STEP 7. Add photos
+------------------------------------------------------------
+1. Resize photos first so the site stays fast: about 1600 pixels wide, under 500 KB each.
+2. In your repository open the "photos" folder, click "Add file", then "Upload files", drag the
+   photos in, and commit. Use simple file names without spaces, e.g. lyngen-sunrise.jpg.
+3. Open content.js, find the "photos" list, and add a line for each photo:
+     { file: "lyngen-sunrise.jpg", caption: "Sunrise above Lyngenfjord" },
+4. Commit. The photos appear on the Photos page.
+
+------------------------------------------------------------
+STEP 8. Booking requests (works from day one, upgrade is optional)
+------------------------------------------------------------
+As delivered: when someone fills in the booking form and presses "Send request", their own
+email app opens with the request already written, addressed to peakandpack@gmail.com. They
+press send. This needs no setup. The downside is that it fails for people who do not use an
+email app on their device.
+
+Optional upgrade, so requests arrive in your inbox without the visitor's email app:
+1. Go to https://formspree.io and create a free account with peakandpack@gmail.com.
+2. Click "New form", name it "Bookings", and set the email to peakandpack@gmail.com.
+3. Formspree shows a form address that looks like https://formspree.io/f/abcdwxyz. Copy it.
+4. In content.js, paste it between the quotes:   formEndpoint: "https://formspree.io/f/abcdwxyz",
+5. Commit. Then send yourself a test booking from the site. Formspree emails you to confirm
+   the first submission.
+Formspree's free plan has a monthly limit on submissions. Check their pricing page for the
+current number. If you outgrow it, the email method keeps working as a fallback.
+
+------------------------------------------------------------
+STEP 9. Your own web address (optional, not free)
+------------------------------------------------------------
+Something like peakandpack.no costs roughly 100 to 200 NOK a year from a domain seller.
+Once you own it: Settings, Pages, "Custom domain", type it in, and follow GitHub's
+instructions for pointing the domain at GitHub. Ask me and I will walk you through it.
+
+------------------------------------------------------------
+IF SOMETHING GOES WRONG
+------------------------------------------------------------
+- Page shows "404": wait 3 minutes after step 5, then refresh. Check Settings, Pages, branch "main".
+- Site looks unstyled: you probably uploaded the outer folder. The files must sit directly in the
+  repository, not inside another folder.
+- Logo missing: the "assets" folder was not uploaded. Upload it again.
+- Change not showing: wait a minute, then hard-refresh (Ctrl+F5 or Cmd+Shift+R).
+- Page is blank after an edit: a comma or quote mark in content.js is missing. Restore it via History.
