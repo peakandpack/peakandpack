@@ -432,3 +432,281 @@ window.SITE = {
   photos: [
   ]
 };
+/*
+  PEAK AND PACK: COURSE DROP-DOWNS + "COURSES" MENU
+  -------------------------------------------------
+  Load AFTER site-config.js, on every page:
+
+      <script src="site-config.js"></script>
+      <script src="course-details.js" defer></script>
+
+  What it does
+  1. Adds a "Courses" drop-down to your menu bar (the first <nav> on the page),
+     grouped by familyOrder. Each entry jumps to that course and opens it.
+  2. Builds one expandable description per course. Prices, duration, group
+     size, season and dates are read live from site-config.js.
+  3. Opens the right course when the address ends in  #course-<id>.
+
+  Where the drop-downs appear: put  <div id="course-details"></div>  in your
+  page where you want them. If that div is missing, they are added at the end
+  of <main> (or the page body).
+*/
+(function () {
+  var S = window.SITE;
+  if (!S || !S.courses) return;
+
+  var LEVEL_COLOURS = ["#63b74a", "#f3e600", "#f08a1c", "#e0231c", "#101418"];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag), k;
+    if (attrs) for (k in attrs) {
+      if (k === "text") e.textContent = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function money(n) { return "NOK\u00a0" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0"); }
+  function todayStr() {
+    var d = new Date(), p = function (n) { return ("0" + n).slice(-2); };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
+  function list(items, cls) {
+    return el("ul", cls ? { "class": cls } : null, items.map(function (t) { return el("li", { text: t }); }));
+  }
+  function fact(label, valueNode) {
+    return el("div", { "class": "pp-fact" }, [el("dt", { text: label }), el("dd", null, [valueNode])]);
+  }
+  function heading(t) { return el("h4", { "class": "pp-h", text: t }); }
+
+  function bookHref(c) {
+    if (document.getElementById("book")) return "#book";
+    return "mailto:" + (S.email || "") + "?subject=" + encodeURIComponent("Booking request: " + c.name);
+  }
+
+  function buildCourse(c) {
+    var d = c.details || {};
+    var t = todayStr();
+    var dates = (S.dates || []).filter(function (x) { return x.course === c.id && x.end >= t; });
+
+    var det = el("details", { "class": "pp-course", id: "course-" + c.id });
+    det.appendChild(el("summary", null, [
+      el("span", { "class": "pp-name", text: c.name }),
+      el("span", { "class": "pp-meta", text: c.duration + " \u00b7 " + money(c.price) })
+    ]));
+
+    var body = el("div", { "class": "pp-body" });
+    if (d.kicker) body.appendChild(el("div", { "class": "pp-kick", text: d.kicker }));
+    if (d.tagline) body.appendChild(el("p", { "class": "pp-tag", text: d.tagline }));
+    (d.intro || [c.desc]).forEach(function (p) { body.appendChild(el("p", { text: p })); });
+
+    // Facts (always from the course line)
+    var facts = el("dl", { "class": "pp-facts" }, [
+      fact("Duration", document.createTextNode(c.duration)),
+      fact("Group", document.createTextNode("Max " + c.max)),
+      fact("Season", document.createTextNode(c.season)),
+      fact("Price", el("strong", { text: money(c.price) + " per person" }))
+    ]);
+    if (d.commitment) {
+      var bars = el("span", { "class": "pp-bars", "aria-label": "Commitment " + d.commitment + " of 5" });
+      for (var i = 1; i <= 5; i++) bars.appendChild(el("i", { "class": i <= d.commitment ? "on" : "" }));
+      facts.appendChild(fact("Commitment", bars));
+    }
+    if (c.meeting) facts.appendChild(fact("Meeting point", document.createTextNode(c.meeting)));
+    body.appendChild(facts);
+
+    if (d.levels && d.levels.length) {
+      var band = el("div", { "class": "pp-band", role: "img", "aria-label": "Avalanche danger levels this course prepares you for: " + d.levels.join(", ") });
+      for (var n = 1; n <= 5; n++) {
+        var on = d.levels.indexOf(n) > -1;
+        var b = el("span", { text: String(n) });
+        b.style.background = LEVEL_COLOURS[n - 1];
+        b.style.opacity = on ? "1" : ".18";
+        if (n === 5) b.style.color = on ? "#f7f8f6" : "#101418";
+        band.appendChild(b);
+      }
+      body.appendChild(heading("Danger levels this course prepares you for"));
+      body.appendChild(band);
+    }
+    if (d.after && d.after.length) { body.appendChild(heading("What you can do afterwards")); body.appendChild(list(d.after, "pp-list")); }
+    if (d.days && d.days.length) {
+      body.appendChild(heading("How the days run"));
+      d.days.forEach(function (r) {
+        body.appendChild(el("div", { "class": "pp-day" }, [
+          el("b", { text: r[0] }),
+          el("div", null, [el("h5", { text: r[1] }), el("p", { text: r[2] })])
+        ]));
+      });
+    }
+    if ((d.included && d.included.length) || (d.bring && d.bring.length)) {
+      body.appendChild(heading("Included"));
+      body.appendChild(el("div", { "class": "pp-cols" }, [
+        el("div", null, [el("h6", { text: "In the price" }), list(d.included || [])]),
+        el("div", { "class": "pp-no" }, [el("h6", { text: "Bring or arrange yourself" }), list(d.bring || [])])
+      ]));
+    }
+    if (d.who) body.appendChild(el("div", { "class": "pp-note" }, [el("b", { text: "Who this is for" }), document.createTextNode(d.who)]));
+
+    // Dates and booking (from the dates list, expired ones hidden)
+    body.appendChild(heading("Dates and booking"));
+    if (dates.length) {
+      body.appendChild(el("ul", { "class": "pp-dates" }, dates.map(function (x) {
+        return el("li", null, [
+          el("span", { text: x.label }),
+          x.full ? el("em", { text: "Full" }) : el("a", { href: bookHref(c), text: "Book" })
+        ]);
+      })));
+    } else {
+      body.appendChild(el("p", null, [
+        document.createTextNode("No dates are scheduled right now. "),
+        el("a", { href: "mailto:" + (S.email || "") + "?subject=" + encodeURIComponent("Dates for " + c.name), text: "Email us" }),
+        document.createTextNode(" and we will tell you the next one, or arrange a private course.")
+      ]));
+    }
+    det.appendChild(body);
+    return det;
+  }
+
+  function openCourse(id, scroll) {
+    var d = document.getElementById("course-" + id);
+    if (!d) return;
+    d.open = true;
+    if (scroll !== false) d.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function openFromHash() {
+    var m = /^#course-(.+)$/.exec(location.hash);
+    if (m) openCourse(decodeURIComponent(m[1]));
+  }
+
+  function grouped() {
+    var order = S.familyOrder || [], seen = {}, out = [];
+    order.forEach(function (f) { seen[f] = 1; });
+    Object.keys(S.courses.reduce(function (o, c) { o[c.family] = 1; return o; }, {})).forEach(function (f) {
+      if (!seen[f]) order = order.concat(f);
+    });
+    order.forEach(function (f) {
+      var cs = S.courses.filter(function (c) { return c.family === f; });
+      if (cs.length) out.push({ family: f, courses: cs });
+    });
+    return out;
+  }
+
+  function buildSection() {
+    var mount = document.getElementById("course-details");
+    if (!mount) {
+      mount = el("section", { id: "course-details" });
+      (document.querySelector("main") || document.body).appendChild(mount);
+    }
+    mount.className = (mount.className + " pp-details").trim();
+    mount.innerHTML = "";
+    mount.appendChild(el("h2", { "class": "pp-title", text: "Courses" }));
+    grouped().forEach(function (g) {
+      mount.appendChild(el("h3", { "class": "pp-family", text: g.family }));
+      g.courses.forEach(function (c) { mount.appendChild(buildCourse(c)); });
+    });
+  }
+
+  function buildMenu() {
+    var nav = document.querySelector("header nav") || document.querySelector("nav");
+    var host;
+    if (nav) {
+      var ul = nav.querySelector("ul");
+      host = el(ul ? "li" : "div", { "class": "pp-menu" });
+      (ul || nav).appendChild(host);
+    } else {
+      var bar = el("div", { "class": "pp-bar" });
+      host = el("div", { "class": "pp-menu" });
+      bar.appendChild(host);
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+    var btn = el("button", { type: "button", "class": "pp-menu-btn", "aria-expanded": "false", "aria-haspopup": "true", text: "Courses \u25be" });
+    var panel = el("div", { "class": "pp-menu-panel", hidden: "" });
+    grouped().forEach(function (g) {
+      panel.appendChild(el("div", { "class": "pp-menu-fam", text: g.family }));
+      g.courses.forEach(function (c) {
+        var a = el("a", { href: "#course-" + c.id, text: c.name });
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          close();
+          history.replaceState(null, "", "#course-" + c.id);
+          openCourse(c.id);
+        });
+        panel.appendChild(a);
+      });
+    });
+    function close() { panel.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var willOpen = panel.hidden;
+      panel.hidden = !willOpen;
+      btn.setAttribute("aria-expanded", String(willOpen));
+    });
+    document.addEventListener("click", function (e) { if (!host.contains(e.target)) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    host.appendChild(btn);
+    host.appendChild(panel);
+  }
+
+  function injectCss() {
+    var css = [
+      ".pp-details{max-width:940px;margin:40px auto;padding:0 20px;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#101418;line-height:1.55}",
+      ".pp-title{font-family:Archivo,system-ui,sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin:0 0 6px}",
+      ".pp-family{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#14464F;margin:28px 0 10px;padding-bottom:7px;border-bottom:2px solid #101418}",
+      ".pp-course{border-bottom:1px solid #D5DDDE;background:#F7F8F6}",
+      ".pp-course>summary{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;cursor:pointer;padding:16px 4px;list-style:none}",
+      ".pp-course>summary::-webkit-details-marker{display:none}",
+      ".pp-course>summary:before{content:'+';font-family:'IBM Plex Mono',monospace;color:#14464F;margin-right:10px;font-weight:700}",
+      ".pp-course[open]>summary:before{content:'\\2212'}",
+      ".pp-course>summary:focus-visible{outline:3px solid #14464F;outline-offset:2px}",
+      ".pp-name{font-family:Archivo,system-ui,sans-serif;font-weight:900;font-size:19px;text-transform:uppercase;flex:1 1 auto}",
+      ".pp-meta{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:#77858C}",
+      ".pp-body{padding:4px 4px 26px}",
+      ".pp-body p{margin:0 0 13px}",
+      ".pp-kick{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#14464F;margin-bottom:10px}",
+      ".pp-tag{font-size:19px;font-weight:500;padding-left:15px;border-left:3px solid #14464F;max-width:40ch}",
+      ".pp-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 20px;margin:20px 0;padding:16px 0;border-top:2px solid #101418;border-bottom:1px solid #D5DDDE}",
+      ".pp-fact dt{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#77858C;margin:0}",
+      ".pp-fact dd{margin:2px 0 0;font-size:15px;font-weight:600}",
+      ".pp-bars{display:flex;gap:4px;margin-top:8px}.pp-bars i{width:19px;height:5px;background:#D5DDDE;border-radius:1px}.pp-bars i.on{background:#14464F}",
+      ".pp-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#14464F;margin:26px 0 12px;padding-bottom:7px;border-bottom:1px solid #D5DDDE}",
+      ".pp-band{display:flex;gap:4px;max-width:420px}",
+      ".pp-band span{flex:1;text-align:center;padding:6px 0;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:#101418}",
+      ".pp-body ul{list-style:none;margin:0;padding:0}",
+      ".pp-body ul li{padding:9px 0 9px 26px;position:relative;border-bottom:1px solid #D5DDDE;font-size:15px}",
+      ".pp-body ul li:before{content:'';position:absolute;left:0;top:16px;width:10px;height:10px;border:2px solid #14464F;border-radius:50%}",
+      ".pp-no ul li:before{border-color:#77858C;border-radius:0}",
+      ".pp-day{display:grid;grid-template-columns:130px 1fr;gap:16px;padding:13px 0;border-bottom:1px solid #D5DDDE}",
+      ".pp-day b{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:#14464F;text-transform:uppercase}",
+      ".pp-day h5{margin:0 0 3px;font-size:16px;font-weight:600}.pp-day p{margin:0;font-size:14.5px;color:#3d474c}",
+      ".pp-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 34px}",
+      ".pp-cols h6{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#77858C;margin:0 0 8px}",
+      ".pp-note{margin:24px 0 0;padding:16px 20px;background:#EAEFEF;border-left:3px solid #14464F;font-size:14.5px}",
+      ".pp-note b{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#14464F;margin-bottom:5px}",
+      ".pp-body ul.pp-dates li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-left:0}",
+      ".pp-dates li:before{display:none}",
+      ".pp-dates a{background:#101418;color:#F7F8F6;text-decoration:none;padding:8px 18px;font-family:Archivo,sans-serif;font-weight:900;font-size:12px;letter-spacing:.1em;text-transform:uppercase}",
+      ".pp-dates a:hover{background:#14464F}.pp-dates em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#77858C;text-transform:uppercase}",
+      ".pp-menu{position:relative;display:inline-block;list-style:none}",
+      ".pp-bar{position:sticky;top:0;z-index:50;background:#F7F8F6;border-bottom:2px solid #101418;padding:8px 20px}",
+      ".pp-menu-btn{font:inherit;background:none;border:0;cursor:pointer;color:inherit;padding:6px 4px;letter-spacing:inherit;text-transform:inherit}",
+      ".pp-menu-btn:focus-visible{outline:3px solid #14464F;outline-offset:2px}",
+      ".pp-menu-panel{position:absolute;left:0;top:100%;z-index:100;min-width:260px;max-height:70vh;overflow:auto;background:#F7F8F6;color:#101418;border:1px solid #101418;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px 0;text-align:left}",
+      ".pp-menu-panel[hidden]{display:none}",
+      ".pp-menu-fam{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#77858C;padding:10px 16px 4px}",
+      ".pp-menu-panel a{display:block;padding:8px 16px;color:#101418;text-decoration:none;font-size:14.5px;text-transform:none;letter-spacing:0}",
+      ".pp-menu-panel a:hover,.pp-menu-panel a:focus-visible{background:#14464F;color:#F7F8F6;outline:none}",
+      "@media(max-width:720px){.pp-cols{grid-template-columns:1fr}.pp-day{grid-template-columns:1fr;gap:4px}.pp-menu-panel{position:fixed;left:12px;right:12px;top:60px}}"
+    ].join("\n");
+    document.head.appendChild(el("style", { text: css }));
+  }
+
+  function init() {
+    injectCss();
+    buildSection();
+    buildMenu();
+    window.addEventListener("hashchange", openFromHash);
+    openFromHash();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
