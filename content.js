@@ -59,7 +59,7 @@ window.SITE = {
     { course: "companion-rescue-evening", label: "Tue 8 Dec 2026",            start: "2026-12-08", end: "2026-12-08", full: false },
     { course: "companion-rescue-evening", label: "Tue 15 Mar 2027",           start: "2027-03-15", end: "2027-03-15", full: false },
     { course: "companion-rescue-evening", label: "Mon 5 Apr 2027",            start: "2027-04-05", end: "2027-04-05", full: false },
-    { course: "avalanche-fundamentals",   label: "Mon 1 – Wed 3 Feb 2027",    start: "2027-02-01", end: "2027-02-03", full: false },
+    { course: "avalanche-fundamentals",   label: "Mon 1 – Wed 3 Mar 2027",    start: "2027-03-01", end: "2027-03-03", full: false },
     { course: "avalanche-advanced",       label: "Thu 10 – Sun 13 Dec 2026",  start: "2026-12-10", end: "2026-12-13", full: false },
     { course: "avalanche-advanced",       label: "Thu 4 – Sun 7 Mar 2027",    start: "2027-03-04", end: "2027-03-07", full: false },
     { course: "snowpack-season-lab",      label: "Cohort 2027/28 · six sessions, Nov to May", start: "2027-11-07", end: "2028-05-31", full: false },
