@@ -429,7 +429,7 @@ window.SITE = {
 
   // Photos: put the file in the "photos" folder, then add a line here.
   // Example:  { file: "lyngen-sunrise.jpg", caption: "Sunrise above Lyngenfjord" },
-  photos: [
+  photos: [ file : "bootpackin' dahlbrebukta.JPG", Caption : "a stunning bootpack in the far reaches of the arctic"
   ]
 };
 /*
